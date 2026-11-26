@@ -18,6 +18,7 @@ fn main() {
 
 #[cfg(not(any(target_os = "android", target_os = "ios", feature = "flutter")))]
 fn main() -> std::process::ExitCode {
+    common::set_app_name("DokthorDesk");
     #[cfg(windows)]
     if let Some(exit_code) = platform::handle_service_control() {
         return exit_code;
