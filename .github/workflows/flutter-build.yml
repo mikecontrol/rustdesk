@@ -1475,6 +1475,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list /etc/apt/sources.list.d/microsoft.list
           sudo apt-get update
           sudo apt-get install -y \
                clang \
@@ -1762,6 +1763,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list /etc/apt/sources.list.d/microsoft.list
           sudo apt-get update
           sudo apt-get install -y \
                clang \
