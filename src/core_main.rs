@@ -43,6 +43,7 @@ fn finish_macos_update(result: hbb_common::ResultType<()>) -> Option<CoreMainAct
 /// If it returns [`Some`], the action determines whether to start the UI or report failure.
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
 pub fn core_main() -> Option<CoreMainAction> {
+    crate::common::set_app_name("DokthorDesk");
     // Before global_init: with drm its is_x11() can read Config (allow-drm-capture), and Config
     // loads from a path named after the custom client's app name. global_init's first two steps
     // run first, for the custom client: its signature check uses libsodium, and the probe child

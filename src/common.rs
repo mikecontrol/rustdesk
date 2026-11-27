@@ -1182,53 +1182,12 @@ fn process_software_update_check_response(bytes: Bytes) -> ResultType<()> {
     Ok(())
 }
 
-// No need to check `danger_accept_invalid_cert` for now.
-// Because the url is always `https://api.rustdesk.com/version/latest`.
-#[tokio::main(flavor = "current_thread")]
-pub async fn do_check_software_update() -> hbb_common::ResultType<()> {
-    let (request, url) =
-        hbb_common::version_check_request(hbb_common::VER_TYPE_RUSTDESK_CLIENT.to_string());
-    let proxy_conf = Config::get_socks();
-    let tls_url = get_url_for_tls(&url, &proxy_conf);
-    let tls_type = get_cached_tls_type(tls_url);
-    let is_tls_not_cached = tls_type.is_none();
-    let tls_type = tls_type.unwrap_or(TlsType::Rustls);
-    let client = create_http_client_async(tls_type, false);
-    let latest_release_response: ResultType<_> = match client.post(&url).json(&request).send().await
-    {
-        Ok(resp) => Ok((tls_type, resp)),
-        Err(err) => {
-            if is_tls_not_cached && err.is_request() {
-                let tls_type = TlsType::NativeTls;
-                let client = create_http_client_async(tls_type, false);
-                match client.post(&url).json(&request).send().await {
-                    Ok(resp) => Ok((tls_type, resp)),
-                    Err(err) => Err(err.into()),
-                }
-            } else {
-                Err(err.into())
-            }
-        }
-    };
-    let response_bytes = match latest_release_response {
-        Ok((used_tls_type, response)) => {
-            upsert_tls_cache(tls_url, used_tls_type, false);
-            let status = response.status();
-            if !status.is_success() {
-                Err(anyhow!(
-                    "Software update check failed with HTTP status: {status}"
-                ))
-            } else {
-                response.bytes().await.map_err(|err| err.into())
-            }
-        }
-        Err(err) => Err(err),
-    };
-    let result = response_bytes.and_then(process_software_update_check_response);
-    if result.is_err() {
-        clear_software_update_url();
-    }
-    result
+// DokthorDesk fork: the update check is disabled. Querying upstream
+// api.rustdesk.com would offer the stock RustDesk client, which would replace
+// this fork. Kept as a no-op so the update path stays intact but never
+// contacts upstream resources.
+pub fn do_check_software_update() -> hbb_common::ResultType<()> {
+    Ok(())
 }
 
 #[inline]
